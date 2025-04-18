@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encrypted Chat App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Encrypted Chat</h1>
+    <div id="chat">
+      <!-- Chat messages will be displayed here -->
+    </div>
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button id="sendMessageButton">Send</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp9kCBsDLnQEmR7wWHXwt3FB2T1zDtiqU",
+      authDomain: "h-90-8a7c5.firebaseapp.com",
+      databaseURL: "https://h-90-8a7c5-default-rtdb.firebaseio.com",
+      projectId: "h-90-8a7c5",
+      storageBucket: "h-90-8a7c5.firebasestorage.app",
+      messagingSenderId: "367196609301",
+      appId: "1:367196609301:web:156e24c1b4532c26af671c",
+      measurementId: "G-W5K7F4VQGP"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const sendMessageButton = document.getElementById('sendMessageButton');
+    const messageInput = document.getElementById('messageInput');
+    const chatDiv = document.getElementById('chat');
+
+    // Send message function
+    sendMessageButton.addEventListener('click', () => {
+      const message = messageInput.value;
+      if (message) {
+        const encryptedMessage = encryptMessage(message);
+        const messagesRef = ref(db, 'chats/chat1/messages');
+        const newMessageRef = messagesRef.push();
+        set(newMessageRef, {
+          text: encryptedMessage,
+          timestamp: Date.now()
+        });
+        messageInput.value = ''; // Clear the input after sending
+      }
+    });
+
+    // Listen for new messages
+    onValue(ref(db, 'chats/chat1/messages'), (snapshot) => {
+      const messages = snapshot.val();
+      chatDiv.innerHTML = ''; // Clear the chat div before adding new messages
+
+      for (let messageId in messages) {
+        const message = messages[messageId];
+        const decryptedMessage = decryptMessage(message.text);
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = decryptedMessage;
+        chatDiv.appendChild(messageDiv);
+      }
+    });
+  </script>
+
+  <!-- Link to your custom JavaScript file -->
+  <script src="script.js"></script>
+</body>
+</html>
