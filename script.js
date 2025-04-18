@@ -1,7 +1,3 @@
-// Import Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-
 // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAp9kCBsDLnQEmR7wWHXwt3FB2T1zDtiqU",
@@ -104,3 +100,29 @@ onValue(ref(db, 'chats/chat1/messages'), (snapshot) => {
     chatDiv.appendChild(messageDiv);
   }
 });
+
+// Cleanup function for deleting messages older than 24 hours
+function cleanupOldMessages() {
+  const messagesRef = ref(db, 'chats/chat1/messages');
+
+  // Get all messages from Firebase
+  onValue(messagesRef, (snapshot) => {
+    const messages = snapshot.val();
+    const now = Date.now();
+
+    // Loop through each message
+    for (let messageId in messages) {
+      const message = messages[messageId];
+      const messageTimestamp = message.timestamp;
+
+      // If the message is older than 24 hours, delete it
+      if (now - messageTimestamp > 24 * 60 * 60 * 1000) { // 24 hours in milliseconds
+        const messageRef = ref(db, 'chats/chat1/messages/' + messageId);
+        remove(messageRef); // Remove the message from Firebase
+      }
+    }
+  });
+}
+
+// Call the cleanup function every time the app loads (or on a timer)
+cleanupOldMessages();
