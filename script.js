@@ -19,9 +19,34 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // DOM elements
+const startChatButton = document.getElementById('startChatButton');
 const sendMessageButton = document.getElementById('sendMessageButton');
 const messageInput = document.getElementById('messageInput');
 const chatDiv = document.getElementById('chat');
+const userNameInput = document.getElementById('userName');
+const userCountryInput = document.getElementById('userCountry');
+const userInfoSection = document.getElementById('userInfo');
+const chatAppSection = document.getElementById('app');
+
+// Global variables to store user details
+let userName = '';
+let userCountry = '';
+
+// Function to handle the Start Chat button click
+startChatButton.addEventListener('click', () => {
+  // Get user details
+  userName = userNameInput.value;
+  userCountry = userCountryInput.value;
+
+  // Validate inputs
+  if (userName && userCountry) {
+    // Hide the user info section and show the chat section
+    userInfoSection.style.display = 'none';
+    chatAppSection.style.display = 'block';
+  } else {
+    alert('Please enter your name and select a country!');
+  }
+});
 
 // Encrypt the message (simple Caesar Cipher as an example)
 function encryptMessage(message) {
@@ -45,14 +70,21 @@ function decryptMessage(message) {
 sendMessageButton.addEventListener('click', () => {
   const message = messageInput.value;
   if (message) {
+    // Encrypt the message
     const encryptedMessage = encryptMessage(message);
+
+    // Store the message with user info (name, country, timestamp)
     const messagesRef = ref(db, 'chats/chat1/messages');
     const newMessageRef = push(messagesRef);
     set(newMessageRef, {
+      userName: userName,
+      userCountry: userCountry,
       text: encryptedMessage,
       timestamp: Date.now()
     });
-    messageInput.value = ''; // Clear the input after sending
+
+    // Clear the message input after sending
+    messageInput.value = '';
   }
 });
 
@@ -61,11 +93,14 @@ onValue(ref(db, 'chats/chat1/messages'), (snapshot) => {
   const messages = snapshot.val();
   chatDiv.innerHTML = ''; // Clear the chat div before adding new messages
 
+  // Display each message with user details
   for (let messageId in messages) {
     const message = messages[messageId];
     const decryptedMessage = decryptMessage(message.text);
+
     const messageDiv = document.createElement('div');
-    messageDiv.textContent = decryptedMessage;
+    messageDiv.classList.add('chat-message');
+    messageDiv.innerHTML = `<strong>${message.userName} (${message.userCountry})</strong> <small>${new Date(message.timestamp).toLocaleString()}</small><br>${decryptedMessage}`;
     chatDiv.appendChild(messageDiv);
-  }
 });
+}
