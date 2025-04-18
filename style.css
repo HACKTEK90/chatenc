@@ -8,6 +8,8 @@
   --chat-message-bg: #e1f5fe;
   --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --transition-speed: 0.3s;
+  --button-padding: 0.75rem 1.5rem;
+  --input-padding: 0.75rem 1rem;
 }
 
 /* Reset and Base Styles */
@@ -24,6 +26,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  overflow: hidden;
 }
 
 /* App Container */
@@ -37,14 +40,69 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  display: none; /* Initially hidden */
+}
+
+/* User Info Section */
+#userInfo {
+  background-color: var(--chat-bg-color);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Header */
-#app h1 {
+#app h1, #userInfo h1 {
   font-size: 2rem;
   color: var(--primary-color);
   text-align: center;
   margin-bottom: 1rem;
+}
+
+/* Input Fields */
+input[type="text"],
+select {
+  padding: var(--input-padding);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  transition: border-color var(--transition-speed);
+}
+
+input[type="text"]:focus,
+select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Send Button */
+button {
+  padding: var(--button-padding);
+  background-color: var(--primary-color);
+  color: var(--accent-color);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed);
+}
+
+button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Placeholder Styling */
+input[type="text"]::placeholder {
+  color: #aaa;
 }
 
 /* Chat Messages Container */
@@ -71,48 +129,6 @@ body {
   word-wrap: break-word;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   animation: fadeIn var(--transition-speed) ease-in-out;
-}
-
-/* Input and Button Container */
-.input-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Message Input */
-#messageInput {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color var(--transition-speed);
-}
-
-#messageInput:focus {
-  border-color: var(--primary-color);
-  outline: none;
-}
-
-/* Send Button */
-#sendMessageButton {
-  padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
-  color: var(--accent-color);
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color var(--transition-speed);
-}
-
-#sendMessageButton:hover {
-  background-color: var(--secondary-color);
-}
-
-/* Placeholder Styling */
-#messageInput::placeholder {
-  color: #aaa;
 }
 
 /* Scrollbar Styling */
@@ -144,15 +160,15 @@ body {
 
 /* Responsive Design */
 @media (max-width: 600px) {
-  #app {
+  #app, #userInfo {
     padding: 1rem;
   }
 
-  #app h1 {
+  #app h1, #userInfo h1 {
     font-size: 1.5rem;
   }
 
-  #sendMessageButton {
+  button {
     padding: 0.75rem;
     font-size: 0.9rem;
   }
