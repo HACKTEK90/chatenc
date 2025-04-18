@@ -102,5 +102,5 @@ onValue(ref(db, 'chats/chat1/messages'), (snapshot) => {
     messageDiv.classList.add('chat-message');
     messageDiv.innerHTML = `<strong>${message.userName} (${message.userCountry})</strong> <small>${new Date(message.timestamp).toLocaleString()}</small><br>${decryptedMessage}`;
     chatDiv.appendChild(messageDiv);
+  }
 });
-}
