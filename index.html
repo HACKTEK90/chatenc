@@ -35,7 +35,7 @@
 </div>
 
     <div id="messageForm">
-      <input type="text" id="messageInput" placeholder="Type a message..." /><input type="file" id="imageInput" />
+      <input type="text" id="messageInput" placeholder="Type a message..." /><!-- This is a change --><input type="file" id="imageInput" />
 <button onclick="uploadImage()">Upload Image</button>
 
 <script>
@@ -56,7 +56,7 @@
     })
     .catch(err => console.error("Upload error", err));
   }
-</script>
+</script>                            <!-- This is a change -->
 
 
       <button id="sendMessageButton">Send</button>
