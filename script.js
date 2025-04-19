@@ -128,3 +128,19 @@ function cleanupOldMessages() {
 
 // Call the cleanup function every time the app loads (or on a timer)
 cleanupOldMessages();
+const typingStatus = document.getElementById('typingStatus');
+let typingTimeout;
+
+// Show "User is typing..."
+messageInput.addEventListener('input', () => {
+  if (messageInput.value.trim() !== '') {
+    typingStatus.innerText = `${userName} is typing...`;
+
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      typingStatus.innerText = '';
+    }, 2000); // hide after 2s of no input
+  } else {
+    typingStatus.innerText = '';
+  }
+});
