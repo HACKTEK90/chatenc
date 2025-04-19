@@ -128,32 +128,3 @@ function cleanupOldMessages() {
 
 // Call the cleanup function every time the app loads (or on a timer)
 cleanupOldMessages();
-const typingStatus = document.getElementById('typingStatus');
-let typingTimeout;
-
-// Show "User is typing..."
-messageInput.addEventListener('input', () => {
-  if (messageInput.value.trim() !== '') {
-    typingStatus.innerText = `${userName} is typing...`;
-
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
-      typingStatus.innerText = '';
-    }, 2000); // hide after 2s of no input
-  } else {
-    typingStatus.innerText = '';
-  }
-});
-
-
-
-
-
-const encrypted = encryptMessage(data.secure_url); // if encryption needed
-// Save to Firebase
-if (message.includes("res.cloudinary.com")) {
-  div.innerHTML = `<img src="${decrypted}" width="200" />`;
-} else {
-  div.textContent = decrypted;
-}
-
