@@ -22,64 +22,65 @@
     <button id="startChatButton">Start Chat</button>
   </div>
 
-  <div id="app">
+  <div id="app" style="display:none;">
     <h1>Encrypted Public Chat</h1>
-    
+
     <div class="info-container">
       <button class="info-icon">i</button>
-      <div class="info-text">Chat anonymously without revealing your identity. Stay safe and secure.Messages will get deleted within 24hr.</div>
+      <div class="info-text">Chat anonymously without revealing your identity. Stay safe and secure. Messages will get deleted within 24hr.</div>
     </div>
+
     <div class="footer-note">Made with ❤️ in India</div>
 
-    <div id="chat"><div id="typingStatus" style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;"></div>
-</div>
+    <div id="chat">
+      <div id="typingStatus" style="font-size: 0.9rem; color: #ccc; margin-top: 0.5rem;"></div>
+    </div>
 
     <div id="messageForm">
-      <input type="text" id="messageInput" placeholder="Type a message..." /><!-- This is a change --><input type="file" id="imageInput" />
-<button onclick="uploadImage()">Upload Image</button>
-
-<script>
-  function uploadImage() {
-    const file = document.getElementById('imageInput').files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "chat_uploads"); // your preset name
-
-    fetch("https://api.cloudinary.com/v1_1/dvna7up5c/image/upload", {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log("Uploaded!", data.secure_url);
-      // Here, send this image URL in your chat message system
-    })
-    .catch(err => console.error("Upload error", err));
-  }
-</script>                            <!-- This is a change -->
-
-
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <input type="file" id="imageInput" />
+      <button onclick="uploadImage()">Upload Image</button>
       <button id="sendMessageButton">Send</button>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <script>
+    function uploadImage() {
+      const file = document.getElementById('imageInput').files[0];
+      if (!file) {
+        alert("Please select an image to upload!");
+        return;
+      }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp9kCBsDLnQEmR7wWHXwt3FB2T1zDtiqU",
-      authDomain: "h-90-8a7c5.firebaseapp.com",
-      databaseURL: "https://h-90-8a7c5-default-rtdb.firebaseio.com",
-      projectId: "h-90-8a7c5",
-      storageBucket: "h-90-8a7c5.appspot.com",
-      messagingSenderId: "367196609301",
-      appId: "1:367196609301:web:156e24c1b4532c26af671c",
-      measurementId: "G-W5K7F4VQGP"
-    };
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "chat_uploads"); // your preset name
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+      fetch("https://api.cloudinary.com/v1_1/dvna7up5c/image/upload", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Uploaded!", data.secure_url);
+        // You can send this image URL along with the message
+        sendMessageWithImage(data.secure_url);
+      })
+      .catch(err => console.error("Upload error", err));
+    }
+
+    function sendMessageWithImage(imageUrl) {
+      const userName = document.getElementById('userName').value.trim();
+      const userCountry = document.getElementById('userCountry').value;
+      const messagesRef = ref(db, 'chats/chat1/messages');
+      const newMessageRef = push(messagesRef);
+      set(newMessageRef, {
+        userName,
+        userCountry,
+        imageUrl: imageUrl,
+        timestamp: Date.now()
+      });
+    }
 
     const startChatButton = document.getElementById('startChatButton');
     const sendMessageButton = document.getElementById('sendMessageButton');
@@ -105,14 +106,6 @@
       }
     });
 
-    function encryptMessage(message) {
-      return message.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) + 3)).join('');
-    }
-
-    function decryptMessage(message) {
-      return message.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) - 3)).join('');
-    }
-
     sendMessageButton.addEventListener('click', () => {
       const message = messageInput.value.trim();
       if (message) {
@@ -129,6 +122,14 @@
       }
     });
 
+    function encryptMessage(message) {
+      return message.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) + 3)).join('');
+    }
+
+    function decryptMessage(message) {
+      return message.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) - 3)).join('');
+    }
+
     onValue(ref(db, 'chats/chat1/messages'), (snapshot) => {
       const messages = snapshot.val();
       chatDiv.innerHTML = '';
@@ -138,6 +139,9 @@
         const div = document.createElement('div');
         div.classList.add('chat-message');
         div.innerHTML = `<strong>${msg.userName} (${msg.userCountry})</strong> <small>${new Date(msg.timestamp).toLocaleString()}</small><br>${decrypted}`;
+        if (msg.imageUrl) {
+          div.innerHTML += `<br><img src="${msg.imageUrl}" alt="Uploaded Image" style="max-width: 100%; height: auto; margin-top: 10px;" />`;
+        }
         chatDiv.appendChild(div);
       }
     });
