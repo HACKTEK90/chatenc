@@ -6,7 +6,6 @@
   <title>Encrypted Chat App</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
-
 </head>
 <body>
   <div id="userInfo">
@@ -24,41 +23,22 @@
   </div>
 
   <div id="app">
-    <h1>Encrypted Public Chat 
-</h1><div class="info-container" style="position: relative; display: inline-block;">
-  <button class="info-icon" style="
-    background-color: transparent;
-    border: 2px solid #fff;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  ">
-    i
-  </button>
-  <div class="info-text">
-    Chat anonymously without revealing your identity. Stay safe and secure.
-  </div>
-</div><div class="footer-note">Made with ❤️ in India</div>
-
-
-
-
-
-    <div id="chat">
-      <!-- Chat messages will appear here -->
+    <h1>Encrypted Public Chat</h1>
+    
+    <div class="info-container">
+      <button class="info-icon">i</button>
+      <div class="info-text">Chat anonymously without revealing your identity. Stay safe and secure.</div>
     </div>
-    <input type="text" id="messageInput" placeholder="Type a message..." />
-    <button id="sendMessageButton">Send</button>
+    <div class="footer-note">Made with ❤️ in India</div>
+
+    <div id="chat"></div>
+
+    <div id="messageForm">
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <button id="sendMessageButton">Send</button>
+    </div>
   </div>
 
-  <!-- Ensure script loads after HTML is ready -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
