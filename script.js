@@ -144,3 +144,16 @@ messageInput.addEventListener('input', () => {
     typingStatus.innerText = '';
   }
 });
+
+
+
+
+
+const encrypted = encryptMessage(data.secure_url); // if encryption needed
+// Save to Firebase
+if (message.includes("res.cloudinary.com")) {
+  div.innerHTML = `<img src="${decrypted}" width="200" />`;
+} else {
+  div.textContent = decrypted;
+}
+
