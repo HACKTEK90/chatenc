@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encrypted Chat App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Courier Prime", monospace;
+      background: linear-gradient(135deg, #00051f, #00010c);
+      color: #b3b3ff;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .hacker-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 600px;
+      padding: 10px;
+    }
+
+    .hacker-btn {
+      padding: 14px 30px;
+      background: rgba(20, 20, 60, 0.9);
+      color: #b3b3ff;
+      border: 2px solid #4b4bff;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(75, 75, 255, 0.3);
+      width: 100%;
+      max-width: 300px;
+      margin: 10px auto;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .hacker-btn:hover {
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(75, 75, 255, 0.7);
+      transform: scale(1.02);
+    }
+
+    .hacker-btn::after {
+      content: "_";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #00ff99;
+      font-size: 1.2rem;
+      animation: cursor-blink 0.8s infinite step-end;
+    }
+
+    .info-btn {
+      width: 40px;
+      height: 40px;
+      background: rgba(10, 10, 40, 0.95);
+      color: #00ff99;
+      border: 2px solid #4b4bff;
+      border-radius: 50%;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(75, 75, 255, 0.3);
+      margin: 10px auto;
+    }
+
+    .info-btn:hover {
+      box-shadow: 0 0 20px rgba(75, 75, 255, 0.7);
+      transform: scale(1.1);
+    }
+
+    .hacker-tooltip {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 40, 0.95);
+      color: #b3b3ff;
+      padding: 8px 16px;
+      border: 1px solid #4b4bff;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(75, 75, 255, 0.3);
+      border-radius: 6px;
+      z-index: 10;
+    }
+
+    .info-btn:hover + .hacker-tooltip {
+      visibility: visible;
+      opacity: 1;
+      top: -70px;
+    }
+
+    .hacker-input, .hacker-select {
+      padding: 12px;
+      background: rgba(20, 20, 60, 0.9);
+      color: #b3b3ff;
+      border: 2px solid #4b4bff;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 300px;
+      margin: 10px auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(75, 75, 255, 0.3);
+    }
+
+    .hacker-input:focus, .hacker-select:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(75, 75, 255, 0.7);
+    }
+
+    .chat {
+      width: 100%;
+      max-width: 600px;
+      height: 60vh;
+      overflow-y: auto;
+      background: rgba(10, 10, 40, 0.95);
+      padding: 15px;
+      border: 2px solid #4b4bff;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 20px rgba(75, 75, 255, 0.3);
+    }
+
+    .chat-message {
+      background: rgba(20, 20, 60, 0.9);
+      padding: 10px;
+      border: 1px solid #4b4bff;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      color: #b3b3ff;
+      font-size: 0.9rem;
+    }
+
+    .message-form {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+On smaller screens, adjust font sizes and padding for better readability and touch interaction */
+    @media (max-width: 600px) {
+      .hacker-container {
+        padding: 10px;
+      }
+      .hacker-btn, .hacker-input, .hacker-select {
+        max-width: 100%;
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+      .chat {
+        height: 50vh;
+      }
+      .hacker-tooltip {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+      .info-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .hacker-btn, .hacker-input, .hacker-select {
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+      .chat {
+        height: 40vh;
+      }
+    }
+
+    @keyframes cursor-blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hacker-container" id="userInfo">
+      <h1 class="text-xl md:text-2xl text-[#b3b3ff] mb-4">> INITIALIZE SESSION</h1>
+      <input type="text" id="userName" placeholder="Enter your alias" class="hacker-input" aria-label="Your name" />
+      <select id="userCountry" class="hacker-select" aria-label="Select your country">
+        <option value="" disabled selected>Select your region</option>
+        <option value="USA">USA</option>
+        <option value="Canada">Canada</option>
+        <option value="UK">UK</option>
+        <option value="India">India</option>
+        <option value="Australia">Australia</option>
+      </select>
+      <button class="hacker-btn" id="startChatButton" aria-label="Start chat">ACTIVATE</button>
+      <div data-text="SECURE SESSION" class="hacker-tooltip">
+        <span>SECURE SESSION</span>
+      </div>
+    </div>
+
+    <div class="hacker-container hidden" id="app">
+      <h1 class="text-xl md:text-2xl text-[#b3b3ff] mb-4">> ENCRYPTED CHANNEL</h1>
+      <div class="relative inline-block mb-2">
+        <button class="info-btn" aria-label="Chat info">?</button>
+        <div data-text="ANONYMOUS PROTOCOL" class="hacker-tooltip">
+          <span>Chat anonymously, securely</span>
+        </div>
+      </div>
+      <div class="footer-note text-sm text-[#00ff99] mb-2">> Coded with ❤️ in India</div>
+      <div id="chat" class="chat"></div>
+      <div class="message-form">
+        <input type="text" id="messageInput" placeholder="> Transmit message..." class="hacker-input" aria-label="Message input" />
+        <button id="sendMessageButton" class="hacker-btn" aria-label="Send message">SEND</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp9kCBsDLnQEmR7wWHXwt3FB2T1zDtiqU",
+      authDomain: "h-90-8a7c5.firebaseapp.com",
+      databaseURL: "https://h-90-8a7c5-default-rtdb.firebaseio.com",
+      projectId: "h-90-8a7c5",
+      storageBucket: "h-90-8a7c5.appspot.com",
+      messagingSenderId: "367196609301",
+      appId: "1:367196609301:web:156e24c1b4532c26af671c",
+      measurementId: "G-W5K7F4VQGP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const startChatButton = document.getElementById('startChatButton');
+    const sendMessageButton = document.getElementById('sendMessageButton');
+    const messageInput = document.getElementById('messageInput');
+    const chatDiv = document.getElementById('chat');
+    const userNameInput = document.getElementById('userName');
+    const userCountryInput = document.getElementById('userCountry');
+    const userInfoSection = document.getElementById('userInfo');
+    const chatAppSection = document.getElementById('app');
+
+    let userName = '';
+    let userCountry = '';
+    const encryptionKey = 'your-secret-key'; // Replace with secure key management
+
+    startChatButton.addEventListener('click', () => {
+      userName = DOMPurify.sanitize(userNameInput.value.trim());
+      userCountry = DOMPurify.sanitize(userCountryInput.value);
+
+      if (userName && userCountry) {
+        userInfoSection.classList.add('hidden');
+        chatAppSection.classList.remove('hidden');
+      } else {
+        alert('> ERROR: Alias and region required!');
+      }
+    });
+
+    function encryptMessage(message) {
+      return CryptoJS.AES.encrypt(message, encryptionKey).toString();
+    }
+
+    function decryptMessage(encrypted) {
+      return CryptoJS.AES.decrypt(encrypted, encryptionKey).toString(CryptoJS.enc.Utf8);
+    }
+
+    sendMessageButton.addEventListener('click', async () => {
+      const message = DOMPurify.sanitize(messageInput.value.trim());
+      if (message) {
+        try {
+          const encrypted = encryptMessage(message);
+          const messagesRef = ref(db, 'chats/chat1/messages');
+          const newMessageRef = push(messagesRef);
+          await set(newMessageRef, {
+            userName,
+            userCountry,
+            text: encrypted,
+            timestamp: Date.now()
+          });
+          messageInput.value = '';
+        } catch (error) {
+          console.error('> ERROR: Transmission failed:', error);
+          alert('> ERROR: Failed to transmit message. Retry.');
+        }
+      }
+    });
+
+    onValue(ref(db, 'chats/chat1/messages'), (snapshot) => {
+      const messages = snapshot.val();
+      chatDiv.innerHTML = '';
+      for (let id in messages) {
+        const msg = messages[id];
+        const decrypted = decryptMessage(msg.text);
+        const div = document.createElement('div');
+        div.classList.add('chat-message');
+        div.innerHTML = `<strong>${DOMPurify.sanitize(msg.userName)} [${DOMPurify.sanitize(msg.userCountry)}]</strong> <small>${new Date(msg.timestamp).toLocaleString()}</small><br>${DOMPurify.sanitize(decrypted)}`;
+        chatDiv.appendChild(div);
+      }
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    });
+
+    function cleanupOldMessages() {
+      const messagesRef = ref(db, 'chats/chat1/messages');
+      onValue(messagesRef, (snapshot) => {
+        const messages = snapshot.val();
+        const now = Date.now();
+        for (let id in messages) {
+          if (now - messages[id].timestamp > 86400000) {
+            remove(ref(db, 'chats/chat1/messages/' + id)).catch(error => console.error('> ERROR: Cleanup failed:', error));
+          }
+        }
+      }, { onlyOnce: true });
+    }
+
+    cleanupOldMessages();
+  </script>
+</body>
+</html>
